@@ -1,9 +1,16 @@
 import express from "express";
 import userRoute from "./routes/user"
 const app = express();
+import { connectDb } from './utils/features'
+import  dotenv  from "dotenv";
 
-//imagename://containername:portno
+dotenv.config()
+// Assuming your .env file has a MONGO_URL variable
+const mongoUrl: string = process.env.MONGO_URL as string;
 
+const PORT = process.env.PORT
+
+connectDb(mongoUrl)
 app.use(express.json());
 
 app.use("/api/v1/user", userRoute)
@@ -13,6 +20,6 @@ app.get('/', (req, res) => {
 })
 
 
-app.listen(3000, () => {
-    console.log("server is runnig good on port 3000 after changes");
+app.listen(PORT, () => {
+    console.log(`server is runnig good on port ${PORT}`);
 })

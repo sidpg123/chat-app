@@ -1,9 +1,11 @@
+import { hash } from "bcrypt";
 import { Schema, model, Document } from "mongoose";
 
-interface UserDocument extends Document {
+export interface UserDocument extends Document {
     name: string;
     username: string;
     password: string;
+    bio: string;
     avatar: {
         public_id: string;
         url: string;
@@ -26,6 +28,10 @@ const userSchema: Schema = new Schema<UserDocument>(
             required: true,
             select: false
         },
+        bio: {
+            type: String,
+            
+        },
         avatar: {
             public_id: {
                 type: String,
@@ -35,6 +41,7 @@ const userSchema: Schema = new Schema<UserDocument>(
                 type: String,
                 required: true
             }
+            
         }
     },
     {
@@ -42,5 +49,11 @@ const userSchema: Schema = new Schema<UserDocument>(
     }
 );
 
-export const UserModel = model<UserDocument>("User", userSchema);
+userSchema.pre<UserDocument>('save', async function (next: Function) {
+    if(!this.isModified("password")) return;
+
+    this.password = await hash(this.password, 10);
+})
+
+export const User = model<UserDocument>("User", userSchema);
     

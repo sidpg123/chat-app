@@ -3,8 +3,9 @@ import { z } from "zod";
 
 export const registerInput = z.object({
     username : z.string().email(),
-    passowrd : z.string().min(6),
-    name: z.string().optional()
+    password : z.string().min(6),
+    name: z.string().optional(),
+    bio: z.string().optional()
 })
 
 

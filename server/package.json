@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sidpg/chat-common": "^1.0.1",
+    "@sidpg/chat-common": "^1.0.3",
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.0.3",
     "cookie-parser": "^1.4.6",
@@ -28,7 +28,10 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/multer": "^1.4.11",
     "nodemon": "^3.1.0"
   }
 }
