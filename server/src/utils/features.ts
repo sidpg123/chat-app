@@ -20,14 +20,14 @@ export const connectDb = (url: string) => {
     })
 }
 
-export const setCooie = (res: Response, userId: string,) => {
+export const setCookie = (res: Response, userId: string, message: string) => {
     
     const token = jwt.sign({ userId: userId }, process.env.JWT_SECRET as string);
     
 
     res.status(200).cookie("chat-cookie", token, cookieOptions).json({
         success: true,
-        message: "Cookit set succesfully"
+        message: message    
     })
     
 }

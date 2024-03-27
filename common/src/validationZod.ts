@@ -11,7 +11,7 @@ export const registerInput = z.object({
 
 export const loginInput = z.object({
     username : z.string().email(),
-    passowrd : z.string().min(6),
+    password : z.string().min(6),
 })
 
 export type registerInput = z.infer<typeof registerInput>;
