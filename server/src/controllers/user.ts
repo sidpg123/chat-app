@@ -1,10 +1,11 @@
-import { Request, Response } from "express"
-import { User, UserDocument } from "../models/user"
-import {loginInput, registerInput} from '@sidpg/chat-common';
-import { setCookie } from "../utils/features";
+import { Request, Response, NextFunction } from "express"
+import { User } from "../models/user"
+import { loginInput, registerInput } from '@sidpg/chat-common';
+import { setCookie, cookieOptions } from "../utils/features";
 import { compare } from "bcrypt";
-import { z } from "zod"
 import { ErrorHandler } from "../utils/utils";
+import { TryCatch } from "../middlewares/errors";
+import { CustomRequest } from "../middlewares/auth";
 
 
 
@@ -70,52 +71,50 @@ const newUser = async (req: Request, res: Response) => {
 
 }
 
-const login = async (req: Request, res: Response) => {
-    const userData = req.body;  
-    
-    const { success } = loginInput.safeParse(userData); 
+const login = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
+    const userData = req.body;
 
-    if (!success) {
-        return res.status(401).json({
-            success: false,
-            message: "Invalid inputs"
+    const { success } = loginInput.safeParse(userData);
+
+    if (!success) return next(new ErrorHandler(401, "Invalid inputs."))
+
+    const user = await User.findOne({ username: userData.username }).select("+password");
+
+   
+    if (!user) return next(new ErrorHandler(401, "User not found"))
+        
+    const isMatch = await compare(userData.password, user.password);
+
+    if (!isMatch) return next(new ErrorHandler(401, "Password incorrect bhaii"))
+
+   // console.log(user);
+    
+
+    setCookie(res, user._id as string, `Welcome back ${user.username}`);
+
+})
+
+
+const getMyProfile = TryCatch( async (req:CustomRequest, res:Response, next:NextFunction) =>{
+    const user = await User.findById(req.user._id);
+    // console.log(req.user);
+    res.status(200).json({
+        success: true,
+        user,
         })
-    }
+}) 
 
-    try {
+const logout = TryCatch( (req: Request, res: Response) => {
+    return res.status(200).cookie("chat-cookie","", {...cookieOptions, maxAge:0}).json({
+        success: true,
+        message: "Loged out succesfully"
+    })
+})
 
-        const user = await User.findOne({ username: userData.username }).select("+password");
-        
-        if(!user) {
-            return res.status(401).json({
-                success: false,
-                message: "User not found"
-            })
-        }
-        
-        const isMatch = await compare(userData.password, user.password);
-        
-        if(!isMatch){
-            throw new ErrorHandler(401, "Bhaii Please check username and password");
-        }
-        
-        setCookie(res, user._id as string, `Welcome back ${user.username}`);
-        
-    } catch (error) {
-        if (error instanceof ErrorHandler) {
-            return res.status(error.statusCode).json({
-                success: false,
-                message: error.message
-            });
-        } else {
-            console.log(error);
-            return res.status(400).json({
-                success: false,
-                message: "Invalid credentials"
-            });
-        }
-    }
-}
 
-    
-export { newUser, login }
+
+
+
+
+
+export { newUser, login, getMyProfile, logout }

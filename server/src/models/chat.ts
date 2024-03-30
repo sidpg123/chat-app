@@ -1,9 +1,9 @@
 import { Schema, Document, Types, model } from "mongoose";
 
-interface ChatDocument extends Document {
+export interface ChatDocument extends Document {
     name: string;
-    status: boolean;
-    groupchat: boolean;
+    status?: boolean;
+    groupChat: boolean;
     creator: Types.ObjectId;
     members: Types.ObjectId[];
 }
@@ -14,7 +14,7 @@ const chatSchema: Schema<ChatDocument> = new Schema<ChatDocument>(
             type: String,
             required: true
         },
-        groupchat: {
+        groupChat: {
             type: Boolean,
             default: false
         },
@@ -32,4 +32,4 @@ const chatSchema: Schema<ChatDocument> = new Schema<ChatDocument>(
     }
 );
 
-export const ChatModel = model<ChatDocument>("Chat", chatSchema);
+export const Chat = model<ChatDocument>("Chat", chatSchema);

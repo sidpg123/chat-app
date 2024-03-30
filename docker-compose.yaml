@@ -17,9 +17,7 @@ services:
       - "3000:3000"
     environment:
       - MONGO_URL=mongodb://mongodb:27017
-      - PORT = 3001
-      - JWT_SECRET = "itsSid"
-
+  
     volumes:
       - ./server/src:/app/src
 

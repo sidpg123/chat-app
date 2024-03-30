@@ -1,6 +1,7 @@
 import { Schema, Types, model } from "mongoose";
 
 interface messageDocument extends Document {
+    content: string,
     sender: Types.ObjectId;
     attachment: {
         public_id: string;
@@ -11,6 +12,9 @@ interface messageDocument extends Document {
 
 const messageSchema : Schema<messageDocument> = new Schema<messageDocument> (
     {
+        content: {
+            type: String
+        },
         sender: {
             type: Schema.Types.ObjectId,
             ref: "User",
@@ -36,4 +40,4 @@ const messageSchema : Schema<messageDocument> = new Schema<messageDocument> (
     }
 )
 
-export const MessageModel = model<messageDocument>("message", messageSchema);   
+export const Message = model<messageDocument>("message", messageSchema);   
