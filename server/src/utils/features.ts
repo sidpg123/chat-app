@@ -40,3 +40,7 @@ export const emitEvent = (req:Request, event: string, users: any[], data?: any )
     console.log("Emitting event", event, data );
     
 }
+
+export const deleteFilesFromCloudinary = async (public_ids: any) => {
+    
+};

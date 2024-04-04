@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 
 import userRoute from "./routes/user"
 import chatRoute from './routes/chat'
-import { createUser } from "./seeders/user";
+import { createGroupChats, createMessagesInChat, createSingleChat, createUser } from "./seeders/user";
 
 dotenv.config()
 // Assuming your .env file has a MONGO_URL variable
@@ -18,6 +18,9 @@ const PORT = process.env.PORT
 connectDb(mongoUrl)
 
 // createUser(5);
+// createSingleChat(10);
+// createGroupChats(5);
+// createMessagesInChat("660a0c2ec759f6cdfed1525c", 50);
 app.use(express.json());
 app.use(cookieParser()); 
 

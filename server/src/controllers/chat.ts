@@ -6,9 +6,10 @@ import { CustomRequest } from "../middlewares/auth";
 import { TryCatch, errorMiddleware } from "../middlewares/errors";
 import { Chat, ChatDocument } from "../models/chat";
 import { User, UserDocument } from "../models/user";
-import { emitEvent } from "../utils/features";
+import { deleteFilesFromCloudinary, emitEvent } from "../utils/features";
 import { ErrorHandler } from "../utils/utils";
 import { Message } from "../models/messages";
+import { tr } from "@faker-js/faker";
 
 interface Attachment {
     filename: string;
@@ -151,7 +152,7 @@ export const addMembers = TryCatch(async (req: CustomRequest, res: Response, nex
     // Add new members to the group
     chat.members.push(...uniqueMembers);
 
-    if (chat.members.length > 100) return next(new ErrorHandler(400, "Group members limit exceeded"));
+    if (chat.members.length > 100) return next(new ErrorHandler(400, "Group members resultPerPage exceeded"));
 
     const allUsersName = allMembers.map((i) => i.name).join(",");
 
@@ -319,4 +320,96 @@ export const getChatDetails = TryCatch(async (req:CustomRequest, res: Response, 
             chat
         })  
     }
+})
+
+export const  renameGroup = TryCatch(async (req: CustomRequest, res: Response, next:NextFunction) => {
+    const chatId = req.params.id;
+    const { name } = req.body;
+    const chat = await Chat.findById(chatId);
+    
+    if (!chat) return next(new ErrorHandler(400, "Group not found"));
+
+    if (!chat.groupChat) return next(new ErrorHandler(400,"This is not a group chat"))
+
+    if (chat.creator.toString() !== req.user._id) return next(new ErrorHandler(400, "Only group admins can change group name"));
+
+    chat.name = name;
+
+    await chat.save();
+
+    emitEvent(req, REFETCH_CHAT, chat.members);
+
+    return res.status(200).json({
+        success: true,
+        message: "Group renamed succesfully"
+    })
+})
+
+export const  deleteChat = TryCatch(async (req: CustomRequest, res: Response, next:NextFunction) => {
+    const chatId = req.params.id;
+    const chat = await Chat.findById(chatId);
+    if (!chat) return next(new ErrorHandler(400, "Group not found"));
+
+    if (!chat.groupChat) return next(new ErrorHandler(400,"This is not a group chat"))
+
+    if (chat.creator.toString() !== req.user._id) return next(new ErrorHandler(400, "Only group admins can delete group"));
+
+    if (!chat.groupChat && chat.members.includes(req.user._id.toString())) {
+        return next(new ErrorHandler(400, "You are not allowed to delete group"))
+    }
+    const messageWithAttachments = await Message.find({ chat: chatId, attachment: { $exists: true, $not: { $size: 0 } } });
+
+
+    const public_ids: any[] = [];
+
+    messageWithAttachments.forEach(({ attachment }) => {
+        attachment.forEach(({ public_id }) => { 
+            public_ids.push(public_id);
+        });
+    });
+
+    await Promise.all([
+       deleteFilesFromCloudinary(public_ids),
+       chat.deleteOne(),
+       Message.deleteMany({chat: chatId})
+    ])
+
+    emitEvent(req, REFETCH_CHAT, chat.members);
+
+    return res.status(200).json({
+        success: true,
+        message: "Group deleted successfully"
+    })
+
+})
+
+
+
+export const getMessage = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const chatId = req.params.id;
+
+    const { page = 1 } = req.query;
+
+    const resultPerPage = 20;
+    const skip = ((page) as number - 1) * resultPerPage;
+
+    const [messages, totalMessageCount] = await Promise.all([
+        Message.find({chat: chatId})
+        .sort({createdAt: -1 })
+        .skip(skip)
+        .limit(resultPerPage)
+        .populate("sender", "name")
+        .lean(),
+        Message.countDocuments({chat: chatId})
+    ])
+
+    const totalPages = Math.ceil(totalMessageCount / resultPerPage);
+    console.log(totalMessageCount);
+    
+    
+    return res.status(200).json({
+        success: true,
+        messages: messages.reverse(),
+        totalPages
+    })
 })
