@@ -1,5 +1,5 @@
 import express from "express";
-import {getMyProfile, login, logout, newUser} from '../controllers/user'
+import {acceptFriendRequest, getMyFriends, getMyProfile, login, logout, newUser, notifications, searchUsers, sendFriendRequest} from '../controllers/user'
 import { singleUpload } from "../middlewares/multer";
 import { isAuthenticated } from "../middlewares/auth";
 const app = express.Router();
@@ -12,6 +12,11 @@ app.post('/register',singleUpload ,newUser);
 app.post('/login', login)
 
 app.use(isAuthenticated);
-app.get('/me', getMyProfile);;
-app.get('/logout', logout)
+app.get('/me', getMyProfile);
+app.get('/logout', logout);
+app.get('/searchUsers', searchUsers);
+app.put('/send-request', sendFriendRequest);
+app.put('/accept-request', acceptFriendRequest);
+app.get('/notifications', notifications)
+app.get('/friends', getMyFriends);  
 export default app; 

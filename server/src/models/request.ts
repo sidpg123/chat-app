@@ -28,4 +28,4 @@ const requestSchema : Schema<requestDocument> = new Schema<requestDocument> ({
 })
 
 
-export const RequestModel = model<requestDocument>("request", requestSchema);
+export const Requests = model<requestDocument>("request", requestSchema);

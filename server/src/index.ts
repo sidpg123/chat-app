@@ -7,6 +7,8 @@ import cookieParser from "cookie-parser";
 
 import userRoute from "./routes/user"
 import chatRoute from './routes/chat'
+import adminRoute from "./routes/admin";
+
 import { createGroupChats, createMessagesInChat, createSingleChat, createUser } from "./seeders/user";
 
 dotenv.config()
@@ -26,7 +28,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/chat", chatRoute);
-
+app.use("/api/v1/admin", adminRoute);
 app.get('/', (req, res) => {
     res.send("hello siddharth patil")
 })

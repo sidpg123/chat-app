@@ -17,6 +17,11 @@ interface Attachment {
     mimeType: string;
     size: number;
 }
+interface Member {
+    _id: ObjectId;
+    name: string;
+    avatar: string; // Adjust the type as needed based on your application
+}
 
 export const newGroupChat = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { name, members } = req.body;
@@ -44,8 +49,6 @@ export const newGroupChat = TryCatch(async (req: CustomRequest, res: Response, n
     })
 
 })
-
-
 
 export const getMyChat = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
 
@@ -247,7 +250,6 @@ export const leaveGroup = TryCatch(async (req: CustomRequest, res: Response, nex
 
 }) 
 
-
 export const sendAttachment = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const {chatId } = req.body;
  
@@ -285,11 +287,6 @@ export const sendAttachment = TryCatch(async (req: CustomRequest, res: Response,
     })
 
 })
-interface Member {
-    _id: ObjectId;
-    name: string;
-    avatar: string; // Adjust the type as needed based on your application
-}
 
 export const getChatDetails = TryCatch(async (req:CustomRequest, res: Response, next: NextFunction) => {
 

@@ -10,7 +10,7 @@ export const createUser = async (userNum: number) => {
         for (let i = 0; i < userNum; i++) {
             const tempUser = User.create({
                 name: faker.person.firstName(),
-                username: faker.internet.userName(),
+                username: faker.internet.email(),
                 bio: faker.lorem.lines(3),
                 password: "password",
                 avatar: {
