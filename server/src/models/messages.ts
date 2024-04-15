@@ -1,4 +1,6 @@
-import { Schema, Types, model, Document } from "mongoose";
+import { Schema, Types, model, Document, PopulatedDoc } from "mongoose";
+import { UserDocument } from "./user";
+import { ChatDocument } from "./chat";
 
 interface Attachment {
     public_id: string;
@@ -7,10 +9,13 @@ interface Attachment {
 
 interface MessageDocument extends Document {
     content: string;
-    sender: Types.ObjectId;
+    sender: PopulatedDoc<UserDocument> 
     attachment: Attachment[]; // Define attachment as an array of Attachment objects
-    chat: Types.ObjectId;
+    chat: PopulatedDoc<ChatDocument>;
+    createdAt: Date,
 }
+
+
 
 const messageSchema: Schema<MessageDocument> = new Schema<MessageDocument>({
     content: {
@@ -35,7 +40,10 @@ const messageSchema: Schema<MessageDocument> = new Schema<MessageDocument>({
             type: String,
             required: true
         }
-    }]
-});
+    }]      
+},{
+    timestamps: true
+})
+
 
 export const Message = model<MessageDocument>("message", messageSchema);

@@ -1,3 +1,4 @@
+import { userSockerIDs } from ".."
 
 
 export const otherUser = (members: any, userId: any ) => {
@@ -5,4 +6,12 @@ export const otherUser = (members: any, userId: any ) => {
     
 }
 
+interface users {
+    _id: string,
+    name: string
+}
 
+export const getSockets = (users:users[] = []) => {
+    const sockets =  users.map((user) => userSockerIDs.get(user._id.toString()))
+    return sockets;
+}

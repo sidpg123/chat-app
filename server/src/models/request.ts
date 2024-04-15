@@ -1,9 +1,10 @@
-import { Schema, Types, model } from "mongoose";
+import { PopulatedDoc, Schema, Types, model } from "mongoose";
+import { UserDocument } from "./user";
 
 interface requestDocument extends Document {
     status: string;
-    sender: Types.ObjectId;
-    receiver: Types.ObjectId
+    sender: PopulatedDoc<UserDocument>
+    receiver: PopulatedDoc<UserDocument>
 }
 
 

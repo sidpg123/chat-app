@@ -2,6 +2,7 @@ import { loginInput, registerInput } from '@sidpg/chat-common';
 import { compare } from "bcrypt";
 import { NextFunction, Request, Response } from "express";
 import { NEW_REQUEST, REFETCH_CHAT } from "../constants/events";
+import { otherUser } from '../lib/helper';
 import { CustomRequest } from "../middlewares/auth";
 import { TryCatch } from "../middlewares/errors";
 import { Chat } from "../models/chat";
@@ -9,20 +10,20 @@ import { Requests } from "../models/request";
 import { User } from "../models/user";
 import { cookieOptions, emitEvent, setCookie } from "../utils/features";
 import { ErrorHandler } from "../utils/utils";
-import { otherUser } from '../lib/helper';
-import { tr } from '@faker-js/faker';
 
 
 
-const newUser = async (req: Request, res: Response) => {
+const newUser = async (req: Request, res: Response, next: NextFunction) => {
     const userData = req.body;
     try {
         const { success } = registerInput.safeParse(userData);
 
-        const avatar = {
-            public_id: "albd",
-            url: "asdf"
-        }
+        if(!req.file) return next(new ErrorHandler(401, "Please upload avatar"))
+
+        // const avatar = {
+        //     public_id: "albd",
+        //     url: "asdf"
+        // }
 
         if (!success) {
             return res.status(400).json({
@@ -46,7 +47,7 @@ const newUser = async (req: Request, res: Response) => {
                 name: userData.name,
                 username: userData.username,
                 password: userData.password,
-                avatar: avatar
+                avatar: req.file
             });
 
             if (!newUser) {
@@ -74,7 +75,6 @@ const newUser = async (req: Request, res: Response) => {
         });
     }
 
-
 }
 
 const login = TryCatch(async (req: Request, res: Response, next: NextFunction) => {
@@ -100,7 +100,6 @@ const login = TryCatch(async (req: Request, res: Response, next: NextFunction) =
 
 })
 
-
 const getMyProfile = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const user = await User.findById(req.user._id);
     // console.log(req.user);
@@ -116,7 +115,6 @@ const logout = TryCatch((req: Request, res: Response) => {
         message: "Loged out succesfully"
     })
 })
-
 
 const searchUsers = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { name = "" } = req.query;
@@ -143,9 +141,6 @@ const searchUsers = TryCatch(async (req: CustomRequest, res: Response, next: Nex
     })
 })
 
-
-
-
 const sendFriendRequest = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { userId } = req.body;
 
@@ -158,7 +153,7 @@ const sendFriendRequest = TryCatch(async (req: CustomRequest, res: Response, nex
         ]
     })
     // console.log(request);
-    
+
     if (request) return next(new ErrorHandler(400, "Request already exist"));
 
     await Requests.create({
@@ -176,16 +171,16 @@ const sendFriendRequest = TryCatch(async (req: CustomRequest, res: Response, nex
 })
 
 const acceptFriendRequest = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const { requestId , accept } = req.body;
-    
+    const { requestId, accept } = req.body;
+
     const request = await Requests.findById(requestId).populate("sender", "name").populate("receiver", "name");
-    
+
     if (!request) return next(new ErrorHandler(404, "Request not found"));
-    if ( accept !== true || false ) return next(new ErrorHandler(401, "accept must be a boolean")) 
+    if (accept !== true || false) return next(new ErrorHandler(401, "accept must be a boolean"))
 
     // console.log("sender",request.receiver._id.toString() );
     // console.log("receiver", req.user._id.toString());
-    
+
     if (request.receiver._id.toString() !== req.user._id.toString()) return next(new ErrorHandler(401, "You are not allowed to accept this request"));
 
 
@@ -195,7 +190,7 @@ const acceptFriendRequest = TryCatch(async (req: CustomRequest, res: Response, n
 
         return res.status(200).json({
             success: true,
-            message: "Friend request Rejected" 
+            message: "Friend request Rejected"
         })
     }
 
@@ -211,20 +206,20 @@ const acceptFriendRequest = TryCatch(async (req: CustomRequest, res: Response, n
     ])
 
     emitEvent(req, REFETCH_CHAT, members);
-    
+
     return res.status(200).json({
         success: true,
         message: "Friend Request Accepted",
-        senderId : request.sender._id
+        senderId: request.sender._id
     })
 
 })
 
-const notifications = TryCatch(async (req:CustomRequest, res: Response, next: NextFunction)=> {
-    const requests = await Requests.find({receiver: req.user._id}).populate("sender","name avatar");
+const notifications = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const requests = await Requests.find({ receiver: req.user._id }).populate("sender", "name avatar");
 
-    const allRequests = requests.map(({_id, sender}: {_id: any, sender: any}) => ({
-        _id, 
+    const allRequests = requests.map(({ _id, sender }: { _id: any, sender: any }) => ({
+        _id,
         sender: {
             _id: sender._id,
             name: sender.name,
@@ -242,16 +237,19 @@ const notifications = TryCatch(async (req:CustomRequest, res: Response, next: Ne
 
 })
 
-const getMyFriends = TryCatch(async (req: CustomRequest, res: Response, next:NextFunction) => {
-    const  chatId  = req.query.chatId;
+
+//Thsi will show me my friends. 
+const getMyFriends = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const chatId = req.query.chatId;
 
     const chats = await Chat.find({
         members: req.user._id,
         groupChat: false
     }).populate("members", "name avatar")
     console.log(chats);
-    
-    const friends = chats.map(({members}) => {
+
+    const friends = chats.map(({ members }) => {
+
         const otherUsers = otherUser(members, req.user._id)
 
         return {
@@ -266,25 +264,24 @@ const getMyFriends = TryCatch(async (req: CustomRequest, res: Response, next:Nex
         const chat = await Chat.findById(chatId);
 
         const availableFriends = friends.filter(
-            (friend) => !chat?.members.includes(friend._id)
+            (friend) => !chat?.members.includes(friend._id)    //When chat id is give it will show the frineds who are not in that chat. THiss will be used when we are adding friends in group chat
         )
 
         return res.status(200).json({
             succes: true,
             friends: availableFriends
         });
-    }else{
+    } else {
         return res.status(200).json({
             success: true,
             friends
         })
     }
 
-
 })
 
 
 
 
-export { acceptFriendRequest, getMyProfile, login, logout, newUser, notifications, searchUsers, sendFriendRequest, getMyFriends };
+export { acceptFriendRequest, getMyFriends, getMyProfile, login, logout, newUser, notifications, searchUsers, sendFriendRequest };
 

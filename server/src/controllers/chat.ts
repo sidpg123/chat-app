@@ -16,11 +16,13 @@ interface Attachment {
     filePath: string;
     mimeType: string;
     size: number;
+
 }
 interface Member {
     _id: ObjectId;
     name: string;
     avatar: string; // Adjust the type as needed based on your application
+
 }
 
 export const newGroupChat = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -52,18 +54,19 @@ export const newGroupChat = TryCatch(async (req: CustomRequest, res: Response, n
 
 export const getMyChat = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
 
-    const chats = await Chat.find({ members: req.user }).populate({
-        path: "members",
-        select: "name username avatar",
-        populate: { path: "avatar", select: "url public_id" }
-    });
+        const chats = await Chat.find({ members: req.user }).populate({
+            path: "members",
+            select: "name username avatar",
+            populate: { path: "avatar", select: "url public_id" }
+        });
 
     const transformedChat = chats.map(({ _id, name, members, groupChat }) => {
-        console.log("req.user", req.user);
+        // console.log("req.user", req.user);
         const otheruser = otherUser(members, req.user);
 
         let avatar = null;
-        if (groupChat) {
+
+        if (groupChat) {    
             avatar = members.slice(0, 3).map((member: any) => member.avatar.url);
         } else if (otheruser) {
             avatar = otheruser.avatar.url;
@@ -114,7 +117,6 @@ export const getMyGroups = TryCatch(async (req: CustomRequest, res: Response, ne
         success: true,
         groups
     })
-
 })
 
 export const addMembers = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -252,7 +254,18 @@ export const leaveGroup = TryCatch(async (req: CustomRequest, res: Response, nex
 
 export const sendAttachment = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const {chatId } = req.body;
+
+    if (!chatId) return next(new ErrorHandler(401, "Please enter chat Id"));
  
+    const files = req.files || [];
+    
+    if (files.length as number < 1) return next(new ErrorHandler(401, "Please Upload Attachments"));
+
+    if (files.length as number > 5) return next(new ErrorHandler(401, "Files can't be more than 5"))
+
+
+
+
     const [chat, me] = await Promise.all([
         Chat.findById(chatId),
         User.findById(req.user._id, "name")
@@ -260,7 +273,6 @@ export const sendAttachment = TryCatch(async (req: CustomRequest, res: Response,
 
     if (!chat) return next(new ErrorHandler(400, "Chat not found"))
 
-    const files = req.files || []; 
 
     if (files.length  as number < 1) return next(new ErrorHandler(400, "Files not selected"))
 
@@ -379,8 +391,6 @@ export const  deleteChat = TryCatch(async (req: CustomRequest, res: Response, ne
     })
 
 })
-
-
 
 export const getMessage = TryCatch(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const chatId = req.params.id;

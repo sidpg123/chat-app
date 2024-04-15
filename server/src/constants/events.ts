@@ -10,4 +10,5 @@ export const NEW_MESSAGE_ALERT: string = "NEW_MESSAGE_ALERT";
 export const ALERT: string = "ALERT";
 export const REFETCH_CHAT: string = "REFETCH_CHAT";
 export const NEW_REQUEST :string = "NEW_REQUEST";
+export const NEW_MESSAGE: string = "NEW_MESSAGE"
 

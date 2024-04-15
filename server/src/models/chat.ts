@@ -1,11 +1,12 @@
-import { Schema, Document, Types, model } from "mongoose";
+import { Schema, Document, Types, model, PopulatedDoc } from "mongoose";
+import { UserDocument } from "./user";
 
 export interface ChatDocument extends Document {
     name: string;
     status?: boolean;
     groupChat: boolean;
-    creator: Types.ObjectId;
-    members: Types.ObjectId[];
+    creator: PopulatedDoc<UserDocument>,
+    members: PopulatedDoc<UserDocument>[];
 }
 
 const chatSchema: Schema<ChatDocument> = new Schema<ChatDocument>(
