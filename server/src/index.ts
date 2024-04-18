@@ -1,7 +1,7 @@
-import express from "express";
+import express, { text } from "express";
 import { connectDb } from './utils/features'
 import  dotenv  from "dotenv";
-import { errorMiddleware } from "./middlewares/errors";
+import { TryCatch, errorMiddleware } from "./middlewares/errors";
 import cookieParser from "cookie-parser";
 import userRoute from "./routes/user"
 import chatRoute from './routes/chat'
@@ -12,6 +12,7 @@ import { createGroupChats, createMessagesInChat, createSingleChat, createUser } 
 import { NEW_MESSAGE, NEW_MESSAGE_ALERT } from "./constants/events";
 import { v4 as uuid } from "uuid";
 import { getSockets } from "./lib/helper";
+import axios from 'axios';
 import { Message } from "./models/messages";
 dotenv.config()
 
@@ -43,12 +44,51 @@ app.get('/', (req, res) => {
 })
 
 // io.use((socker, next))
+async function translateMessage(message: string, sourceLanguage: string, targetLanguage: string): Promise<string> {
+    try {
+        const response = await axios.post<{ translations: { translation: string } }>('https://api.translateplus.io/v1/translate', {
+            text: message,
+            source: sourceLanguage,
+            target: targetLanguage
+        }, {
+            headers: {
+                'X-API-KEY': '98e0df0cdd6d814cde9421d4cc8a8e24169fda75',
+                'Content-Type': 'application/json'
+            }
+        });
+        return response.data.translations.translation;
+    } catch (error) {
+        console.error('Error translating message:');
+        return message; // Return original message if translation fails
+    }
+}
+
+async function detectLanguage(message: string) {
+    try {
+        const response = await axios.post<{ language_detection: { language: string } }>('https://api.translateplus.io/v1/language_detect', {
+            text: message
+        }, {
+            headers: {
+                'X-API-KEY': '98e0df0cdd6d814cde9421d4cc8a8e24169fda75',
+                'Content-Type': 'application/json'
+            }
+        })
+        return response.data.language_detection.language;
+    } catch (error) {
+        console.error(error);
+        return message;
+    }
+}
+
+
 
 io.on("connection", (socket) => {
     console.log("A user connected", socket.id);  
+    
     const user = {
         _id: "lskjf",
-        name: "demoName"
+        name: "demoName",
+        language: "en",
     }
     
     userSockerIDs.set(user._id.toString(), socket.id);
@@ -57,8 +97,15 @@ io.on("connection", (socket) => {
     console.log("testing");
     
     socket.on(NEW_MESSAGE, async({chatId, members, message}) => {
+        const sourceLanguage: string = await detectLanguage(message); 
+        const targetLanguage: string = user.language; 
+        console.log("source language:", sourceLanguage);
+        
+        // Translate the message
+        const translatedMessage: string = await translateMessage(message, sourceLanguage, targetLanguage);
+
         const messageForRealtime = {
-            content: message,
+            content: translatedMessage, // Use translated message
             _id: uuid(),
             sender: {
                 _id: user._id,
@@ -67,6 +114,7 @@ io.on("connection", (socket) => {
             chat: chatId,
             createdAt: new Date().toISOString(),
         }
+     
         
         
         const messageForDB = {
