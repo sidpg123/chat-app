@@ -1,7 +1,11 @@
 import React from 'react'
+import AppLayout from '../components/layout/AppLayout'
 
-export default function Home() {
+
+function Home() {
   return (
     <div>Home</div>
   )
 }
+
+export default AppLayout()(Home)
