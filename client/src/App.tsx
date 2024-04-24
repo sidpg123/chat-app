@@ -9,7 +9,7 @@ const Groups = lazy(() => import("./pages/Groups"));
 const Chat = lazy(() => import("./pages/Chat"));
 const Login = lazy(() => import("./pages/Login"));
 
-let user: boolean = true;
+let user: boolean = false;
 
 function App() {
   return (

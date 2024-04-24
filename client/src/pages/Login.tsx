@@ -16,7 +16,7 @@ import {
 
 import React, { FormEvent, useState } from "react";
 import { CameraAlt, TypeSpecimenOutlined } from "@mui/icons-material";
-import { VisuallyHidden } from "../components/StyledComponents";
+import { VisuallyHidden } from "../components/styles/StyledComponents";
 import { useFileHandler, useInputValidation } from "6pp";
 import { userNameValidator } from "../utils/validator";
 
@@ -35,8 +35,10 @@ function Login() {
   const handleLogin: React.FormEventHandler<HTMLFormElement> = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
   }
+  return (<div style={{backgroundImage: "url(https://t4.ftcdn.net/jpg/02/53/02/97/360_F_253029760_gwaMveCh3zLvRPAomxBYtbC0DeiDLuVs.webp)",
+  backgroundSize: "cover",}}>
 
-  return (
+  
     <Container
       component={"main"}
       maxWidth="xs"
@@ -45,6 +47,7 @@ function Login() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
+        
       }}
     >
       <Paper
@@ -152,14 +155,55 @@ function Login() {
                 margin="normal"
                 variant="outlined"
               />
+<FormControl sx={{ width: "100%" }}>
+  <InputLabel id="language-label">Language</InputLabel>
+  <Select label="Language" labelId="language-label">
+    {/* Indian Languages */}
+    <MenuItem value={"hi"}>Hindi</MenuItem>
+    <MenuItem value={"bn"}>Bengali</MenuItem>
+    <MenuItem value={"te"}>Telugu</MenuItem>
+    <MenuItem value={"mr"}>Marathi</MenuItem>
+    <MenuItem value={"ta"}>Tamil</MenuItem>
+    <MenuItem value={"ur"}>Urdu</MenuItem>
+    <MenuItem value={"gu"}>Gujarati</MenuItem>
+    <MenuItem value={"kn"}>Kannada</MenuItem>
+    <MenuItem value={"ml"}>Malayalam</MenuItem>
+    <MenuItem value={"pa"}>Punjabi</MenuItem>
+    <MenuItem value={"or"}>Odia</MenuItem>
+    <MenuItem value={"as"}>Assamese</MenuItem>
+    <MenuItem value={"mr"}>Maithili</MenuItem>
+    <MenuItem value={"sd"}>Sindhi</MenuItem>
+    <MenuItem value={"ne"}>Nepali</MenuItem>
+    <MenuItem value={"mr"}>Marwari</MenuItem>
+    {/* Other Popular Languages */}
+    <MenuItem value={"en"}>English</MenuItem>
+    <MenuItem value={"es"}>Spanish</MenuItem>
+    <MenuItem value={"zh"}>Chinese</MenuItem>
+    <MenuItem value={"fr"}>French</MenuItem>
+    <MenuItem value={"ar"}>Arabic</MenuItem>
+    <MenuItem value={"pt"}>Portuguese</MenuItem>
+    <MenuItem value={"ru"}>Russian</MenuItem>
+    <MenuItem value={"de"}>German</MenuItem>
+    <MenuItem value={"ja"}>Japanese</MenuItem>
+    <MenuItem value={"ko"}>Korean</MenuItem>
+    <MenuItem value={"it"}>Italian</MenuItem>
+    <MenuItem value={"tr"}>Turkish</MenuItem>
+    <MenuItem value={"vi"}>Vietnamese</MenuItem>
+    <MenuItem value={"pl"}>Polish</MenuItem>
+    <MenuItem value={"uk"}>Ukrainian</MenuItem>
+    <MenuItem value={"nl"}>Dutch</MenuItem>
+    <MenuItem value={"sv"}>Swedish</MenuItem>
+    <MenuItem value={"th"}>Thai</MenuItem>
+    <MenuItem value={"el"}>Greek</MenuItem>
+    <MenuItem value={"cs"}>Czech</MenuItem>
+    <MenuItem value={"ro"}>Romanian</MenuItem>
+    <MenuItem value={"hu"}>Hungarian</MenuItem>
+    <MenuItem value={"fi"}>Finnish</MenuItem>
+    <MenuItem value={"da"}>Danish</MenuItem>
+    {/* Add more languages as needed */}
+  </Select>
+</FormControl>
 
-              <FormControl sx={{ width: "100%" }}>
-                <InputLabel id="language-lable">Language</InputLabel>
-                <Select label="language" labelId="language-lable">
-                  <MenuItem value={"en"}>English</MenuItem>
-                  <MenuItem value={"hi"}> Hindi</MenuItem>
-                </Select>
-              </FormControl>
             
             
               <TextField
@@ -220,6 +264,7 @@ function Login() {
         )}
       </Paper>
     </Container>
+    </div> 
   );
 }
 
