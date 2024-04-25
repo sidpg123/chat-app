@@ -8,21 +8,27 @@ type sampleUsersType = {
 }[]
 
 export const samplechats = [{
-    avatar: ['https://www.w3schools.com/howto/img_avatar.png'],
-    name: "Sakshi",
+    avatar: ['https://wallpapers.com/images/featured/ben-10-pictures-dfrk2fyznplocesa.jpg'],
+    name: "Ben 10",
     _id: "1",
     groupChat: false,
     members: ["1", "2", "3"]
 }, {
-    avatar: ['https://www.w3schools.com/howto/img_avatar.png', 'https://www.w3schools.com/howto/img_avatar2.png', 'https://www.w3schools.com/w3images/avatar2.png', 'https://www.w3schools.com/w3images/avatar6.png',],
-    name: "ZS3",
+    avatar: ['https://www.w3schools.com/howto/img_avatar.png', 'https://i.pinimg.com/originals/57/10/c0/5710c08c56818a919b6ce6343f9bb158.jpg', 'https://m.media-amazon.com/images/M/MV5BYWMzOTQxMDQtMjhkNi00YmVmLTk3NjAtZjE0OGJmMGQ1NjMyXkEyXkFqcGdeQXZ3ZXNsZXk@.jpg', 'https://i.pinimg.com/originals/f4/5d/a1/f45da1ef97dc966141c56ba2a492ea98.jpg',],
+    name: "Avengers",
     _id: "2",
     groupChat: true,
     members: ["1", "2", "3"]
-}
+}, {
+    avatar: ['https://wallpapercave.com/wp/wp4801151.jpg'],
+    name: "shinchan",
+    _id: "3",
+    groupChat: false,
+    members: ["1", "2", "3"]
+},
 ]
 
-export const sampleUsers:sampleUsersType = [{
+export const sampleUsers: sampleUsersType = [{
     avatar: ['https://www.w3schools.com/howto/img_avatar.png'],
     name: "siddharth",
     _id: "1",
